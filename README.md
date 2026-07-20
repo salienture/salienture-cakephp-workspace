@@ -1,4 +1,4 @@
-# CakePHP Workspace
+# Salienture CakePHP Workspace
 
 > Built by [Salienture](https://salienture.com) — Startup speed, enterprise delivery.
 
@@ -12,7 +12,7 @@ a smart app-detection setup script, Makefile workflows, and AI assistant config.
 
 ```bash
 # 1. Clone the workspace
-git clone git@github.com:salienture/cakephp-workspace.git my-project-workspace
+git clone git@github.com:salienture/salienture-cakephp-workspace.git my-project-workspace
 cd my-project-workspace
 
 # 2. Clone your CakePHP app into app/
