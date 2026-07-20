@@ -1,0 +1,18 @@
+---
+description: CakePHP app patterns for app/
+globs: app/**/*
+alwaysApply: false
+---
+
+# CakePHP application (`app/`)
+
+- CakePHP 5.x, PHP 8.1+.
+- Controllers: `src/Controller/`; Models (Table/Entity): `src/Model/`; Templates: `templates/`.
+- Migrations: `cakephp/migrations` plugin, files in `config/Migrations/`.
+- Code generation: `bin/cake bake <type> <name>` (e.g. `bake model Users`).
+- Tests: PHPUnit in `tests/TestCase/`.
+- Run: `composer test`, `composer cs-check` from `app/`, or `make test` / `make cs-check` from workspace root.
+
+Check the app's own `composer.json` and `config/app.php` before assuming a
+plugin (queue, DebugKit, API-only routing) is installed — CakePHP apps vary
+more than a single-stack Laravel app does.

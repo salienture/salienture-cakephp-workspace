@@ -1,0 +1,39 @@
+{
+  "name": "CakePHP Workspace",
+  "dockerComposeFile": "../docker/compose.yml",
+  "service": "frankenphp",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-docker",
+        "xdebug.php-debug"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "editor.formatOnSave": true,
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+        }
+      }
+    }
+  },
+  "forwardPorts": [80, 3306, 6379, 8025, 8081],
+  "portsAttributes": {
+    "80": { "label": "FrankenPHP", "onAutoForward": "notify" },
+    "8025": { "label": "Mailpit UI", "onAutoForward": "silent" },
+    "8081": { "label": "phpMyAdmin", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "composer install --no-interaction || true",
+  "remoteUser": "root",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  }
+}

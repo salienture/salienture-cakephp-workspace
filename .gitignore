@@ -1,0 +1,31 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# CakePHP apps — clone your app(s) inside app/, they are never committed here.
+# Each app is its own git repository tracked separately.
+/app/*
+!/app/.gitkeep
+
+# Database dumps
+/dumps/
+
+# Docker
+docker/**/*.log
+
+# IDE / AI
+.idea/
+.vscode/
+!.vscode/extensions.json
+.playwright-mcp/
+*.swp
+*.swo
+.DS_Store
+
+# History (keep structure, ignore personal dumps)
+history/**/*.local.md
+history/**/scratch/
+
+# OS
+Thumbs.db

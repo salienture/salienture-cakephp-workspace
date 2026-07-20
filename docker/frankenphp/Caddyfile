@@ -1,0 +1,20 @@
+{
+	frankenphp {
+		# CakePHP worker mode (optional — enable for production-like perf)
+		# num_threads 2
+	}
+}
+
+http://{$SERVER_NAME:localhost} {
+	root /app/webroot
+	encode zstd br gzip
+
+	php_server {
+		try_files {path} index.php
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

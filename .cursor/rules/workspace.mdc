@@ -1,0 +1,15 @@
+---
+description: CakePHP workspace conventions (Docker, Makefile, docs)
+alwaysApply: true
+---
+
+# CakePHP workspace
+
+This repo is a **dev workspace**, not the CakePHP app root.
+
+- Application code lives in `app/` (often symlinked to another repo).
+- Use `make` for Docker and `bin/cake`: `make cake ARGS="migrations migrate"`, `make test`, `make up`.
+- Stack: FrankenPHP, MariaDB, Redis, Mailpit, phpMyAdmin.
+- FrankenPHP serves CakePHP's `webroot/`, not `public/`.
+- Patch Docker-related env with `make env`, not manual guesswork for service hostnames.
+- Read `CLAUDE.md` and `docs/` before large changes.

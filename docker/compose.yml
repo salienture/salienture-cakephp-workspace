@@ -1,0 +1,138 @@
+# CakePHP workspace — local development stack
+# Usage: make up  (from workspace root)
+
+name: ${COMPOSE_PROJECT_NAME}
+
+services:
+  frankenphp:
+    build:
+      context: ./frankenphp
+      dockerfile: Dockerfile
+      args:
+        INSTALL_XDEBUG: ${INSTALL_XDEBUG:-false}
+    container_name: ${COMPOSE_PROJECT_NAME}-frankenphp
+    restart: unless-stopped
+    ports:
+      - "${APP_HTTP_PORT:-8080}:80"
+      - "${APP_HTTPS_PORT:-8443}:443"
+      - "${APP_HTTPS_PORT:-8443}:443/udp"
+    volumes:
+      - ${APP_PATH}:/app
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost}
+      FRANKENPHP_CONFIG: /etc/caddy/Caddyfile
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  queue:
+    build:
+      context: ./frankenphp
+      dockerfile: Dockerfile
+      args:
+        INSTALL_XDEBUG: ${INSTALL_XDEBUG:-false}
+    container_name: ${COMPOSE_PROJECT_NAME}-queue
+    restart: unless-stopped
+    # Requires the cakephp/queue plugin to be installed in the app.
+    command: bin/cake queue run
+    working_dir: /app
+    volumes:
+      - ${APP_PATH}:/app
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app
+    profiles:
+      - workers
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: ${COMPOSE_PROJECT_NAME}-mariadb
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./mariadb/conf.d:/etc/mysql/mariadb.conf.d:ro
+      - ./mariadb/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: ${COMPOSE_PROJECT_NAME}-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - app
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    container_name: ${COMPOSE_PROJECT_NAME}-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+    networks:
+      - app
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:
+  mariadb_data:
+  redis_data:
+
+networks:
+  app:
+    driver: bridge
